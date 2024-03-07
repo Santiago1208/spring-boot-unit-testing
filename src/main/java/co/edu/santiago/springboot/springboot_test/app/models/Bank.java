@@ -18,7 +18,7 @@ public class Bank {
     @Column(name = "bank_name", nullable = false, length = 50)
     private String name;
 
-    @Column(name = "bank_total_transfer", nullable = false)
+    @Column(name = "bank_total_transfers", nullable = false)
     private int totalTransfers;
 
     public Bank() {

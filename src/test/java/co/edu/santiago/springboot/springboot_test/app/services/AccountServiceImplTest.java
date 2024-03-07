@@ -61,9 +61,9 @@ class AccountServiceImplTest {
 
         verify(accountRepository, times(2)).findById(1L);
         verify(accountRepository, times(2)).findById(2L);
-        verify(accountRepository, times(2)).update(any(Account.class));
+        verify(accountRepository, times(2)).save(any(Account.class));
         verify(bankRepository).findById(1L);
-        verify(bankRepository).update(any(Bank.class));
+        verify(bankRepository).save(any(Bank.class));
 
         // Testing the most context possible
         verify(accountRepository, never()).findAll();
@@ -105,7 +105,7 @@ class AccountServiceImplTest {
 
         verify(accountRepository, times(2)).findById(1L);
         verify(accountRepository, times(1)).findById(2L);
-        verify(accountRepository, never()).update(any(Account.class));
+        verify(accountRepository, never()).save(any(Account.class));
 
         // Testing the most context possible
         verify(accountRepository, never()).findAll();

@@ -18,34 +18,34 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account findById(Long id) {
-        return accountRepository.findById(id);
+        return accountRepository.findById(id).orElseThrow();
     }
 
     @Override
     public int getTotalTransfers(Long bankId) {
-        Bank bank = bankRepository.findById(bankId);
+        Bank bank = bankRepository.findById(bankId).orElseThrow();
         return bank.getTotalTransfers();
     }
 
     @Override
     public BigDecimal getBalance(Long id) {
-        Account account = accountRepository.findById(id);
+        Account account = accountRepository.findById(id).orElseThrow();
         return account.getBalance();
     }
 
     @Override
     public void transfer(Long sourceAccountId, Long targetAccountId, BigDecimal amount, Long bankId) {
-        Account sourceAccount = accountRepository.findById(sourceAccountId);
+        Account sourceAccount = accountRepository.findById(sourceAccountId).orElseThrow();
         sourceAccount.debit(amount);
-        accountRepository.update(sourceAccount);
+        accountRepository.save(sourceAccount);
 
-        Bank bank = bankRepository.findById(bankId);
+        Bank bank = bankRepository.findById(bankId).orElseThrow();
         int totalTransfers = bank.getTotalTransfers();
         bank.setTotalTransfers(++totalTransfers);
-        bankRepository.update(bank);
+        bankRepository.save(bank);
 
-        Account targetAccount = accountRepository.findById(targetAccountId);
+        Account targetAccount = accountRepository.findById(targetAccountId).orElseThrow();
         targetAccount.credit(amount);
-        accountRepository.update(targetAccount);
+        accountRepository.save(targetAccount);
     }
 }
