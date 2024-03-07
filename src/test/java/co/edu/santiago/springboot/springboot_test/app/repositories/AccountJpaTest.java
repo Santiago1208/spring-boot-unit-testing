@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -51,5 +52,41 @@ class AccountJpaTest {
         List<Account> accounts = accountRepository.findAll();
         assertFalse(accounts.isEmpty());
         assertEquals(2, accounts.size());
+    }
+
+    @Test
+    @DisplayName("Saves the specified account")
+    void givenNewAccount_whenSaveCalled_mustNotThrowAnyException() {
+        Account account = new Account(null, "Pepe", new BigDecimal("3000"));
+        assertDoesNotThrow(() -> accountRepository.save(account));
+
+        Account pepeAccount = accountRepository.findByOwnerStartingWith("Pepe").orElseThrow();
+        assertEquals("Pepe", pepeAccount.getOwner());
+        assertEquals("3000", pepeAccount.getBalance().toPlainString());
+    }
+
+    @Test
+    @DisplayName("Updates an existent account")
+    void givenAccountToUpdate_whenSaveCalled_mustNotThrowAnyException() {
+        Account account = new Account(null, "Pepe", new BigDecimal("3000"));
+        accountRepository.save(account);
+
+        account.setBalance(new BigDecimal("4000"));
+        accountRepository.save(account);
+
+        Account pepeAccount = accountRepository.findByOwnerStartingWith("Pepe").orElseThrow();
+        assertEquals("Pepe", pepeAccount.getOwner());
+        assertEquals("4000", pepeAccount.getBalance().toPlainString());
+    }
+
+    @Test
+    @DisplayName("Deletes an specified account")
+    void givenAccountId_whenDeleteCalled_noRecordShouldExist() {
+        Account johnAccount = accountRepository.findById(2L).orElseThrow();
+
+        accountRepository.delete(johnAccount);
+
+        Optional<Account> deletedAccount = accountRepository.findByOwnerStartingWith("John");
+        assertThrows(NoSuchElementException.class, deletedAccount::orElseThrow);
     }
 }
