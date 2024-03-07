@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -64,6 +65,10 @@ class AccountServiceImplTest {
         verify(accountRepository, times(2)).update(any(Account.class));
         verify(bankRepository).findById(1L);
         verify(bankRepository).update(any(Bank.class));
+
+        // Testing the most context possible
+        verify(accountRepository, never()).findAll();
+        verify(accountRepository, times(4)).findById(anyLong());
     }
 
     @Test
@@ -79,6 +84,9 @@ class AccountServiceImplTest {
 
         assertEquals(1, totalTransfers);
         verify(bankRepository, times(2)).findById(1L);
+
+        // Testing the most context possible
+        verify(accountRepository, never()).findAll();
     }
 
     @Test
@@ -102,5 +110,24 @@ class AccountServiceImplTest {
         verify(accountRepository, never()).update(any(Account.class));
         verify(bankRepository, never()).findById(1L);
         verify(bankRepository, never()).update(any(Bank.class));
+
+        // Testing the most context possible
+        verify(accountRepository, never()).findAll();
+        verify(accountRepository, times(3)).findById(anyLong());
+    }
+
+    @Test
+    @DisplayName("Returns the same account when findById called twice. (No concurrent writing happening)")
+    void givenAccountId_whenFindByIdCalledTwice_itMustReturnTheSameAccount() {
+        when(accountRepository.findById(1L)).thenReturn(TestData.createAccount001());
+
+        Account account1 = accountService.findById(1L);
+        Account account2 = accountService.findById(1L);
+
+        assertSame(account1, account2);
+        assertEquals("Santiago", account1.getOwner());
+        assertEquals("Santiago", account2.getOwner());
+
+        verify(accountRepository, times(2)).findById(1L);
     }
 }
