@@ -9,6 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
-    @Query("select acc from Account acc where acc.owner ilike %?1")
+    @Query("select acc from Account acc where acc.owner ilike ?1%")
     Optional<Account> findByOwnerStartingWith(String ownerName);
 }
