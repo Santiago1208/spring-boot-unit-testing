@@ -1,16 +1,33 @@
 package co.edu.santiago.springboot.springboot_test.app.models;
 
 import co.edu.santiago.springboot.springboot_test.app.exception.InsufficientFundsException;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
+@Entity
+@Table(name = "accounts")
 public class Account {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "account_owner", length = 50, nullable = false)
     private String owner;
+
+    @Column(name = "account_balance", nullable = false)
     private BigDecimal balance;
 
     public Account() {
+        owner = "";
+        balance = BigDecimal.ZERO;
     }
 
     public Account(Long id, String owner, BigDecimal balance) {
