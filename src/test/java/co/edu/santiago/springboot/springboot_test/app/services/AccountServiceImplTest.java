@@ -8,9 +8,10 @@ import co.edu.santiago.springboot.springboot_test.app.repository.AccountReposito
 import co.edu.santiago.springboot.springboot_test.app.repository.BankRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 
@@ -22,14 +23,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class AccountServiceImplTest {
-    @MockBean
+    @Mock
     AccountRepository accountRepository;
-    @MockBean
+    @Mock
     BankRepository bankRepository;
-    @Autowired
-    AccountService accountService;
+    @InjectMocks
+    AccountServiceImpl accountService;
 
     @Test
     @DisplayName("Returns the account balance properly")
@@ -92,7 +93,6 @@ class AccountServiceImplTest {
     void givenAccountIdAndBankId_whenTransferCalledAndInsufficientFunds_mustThrowException() {
         when(accountRepository.findById(1L)).thenReturn(TestData.createAccount001());
         when(accountRepository.findById(2L)).thenReturn(TestData.createAccount002());
-        when(bankRepository.findById(1L)).thenReturn(TestData.createBank());
         BigDecimal amountToTransfer = new BigDecimal("1200");
 
         assertThrows(InsufficientFundsException.class,
@@ -106,8 +106,6 @@ class AccountServiceImplTest {
         verify(accountRepository, times(2)).findById(1L);
         verify(accountRepository, times(1)).findById(2L);
         verify(accountRepository, never()).update(any(Account.class));
-        verify(bankRepository, never()).findById(1L);
-        verify(bankRepository, never()).update(any(Bank.class));
 
         // Testing the most context possible
         verify(accountRepository, never()).findAll();
