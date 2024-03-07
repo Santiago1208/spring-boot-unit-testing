@@ -6,32 +6,30 @@ import co.edu.santiago.springboot.springboot_test.app.models.Account;
 import co.edu.santiago.springboot.springboot_test.app.models.Bank;
 import co.edu.santiago.springboot.springboot_test.app.repository.AccountRepository;
 import co.edu.santiago.springboot.springboot_test.app.repository.BankRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SpringBootTest
 class AccountServiceImplTest {
+    @MockBean
     AccountRepository accountRepository;
+    @MockBean
     BankRepository bankRepository;
+    @Autowired
     AccountService accountService;
-
-    @BeforeEach
-    void setUp() {
-        accountRepository = mock(AccountRepository.class);
-        bankRepository = mock(BankRepository.class);
-        accountService = new AccountServiceImpl(accountRepository, bankRepository);
-    }
 
     @Test
     @DisplayName("Returns the account balance properly")

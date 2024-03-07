@@ -4,9 +4,11 @@ import co.edu.santiago.springboot.springboot_test.app.models.Account;
 import co.edu.santiago.springboot.springboot_test.app.models.Bank;
 import co.edu.santiago.springboot.springboot_test.app.repository.AccountRepository;
 import co.edu.santiago.springboot.springboot_test.app.repository.BankRepository;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
+@Service
 public class AccountServiceImpl implements AccountService {
     private AccountRepository accountRepository;
     private BankRepository bankRepository;
