@@ -14,6 +14,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -125,5 +127,24 @@ class AccountServiceImplTest {
         assertEquals("Santiago", account2.getOwner());
 
         verify(accountRepository, times(2)).findById(1L);
+    }
+
+    @Test
+    void findAllTest() {
+        // Given
+        List<Account> accounts = Arrays.asList(
+                TestData.createAccount001().orElseThrow(),
+                TestData.createAccount002().orElseThrow());
+        when(accountRepository.findAll()).thenReturn(accounts);
+
+        // When
+        List<Account> actualAccounts = accountService.findAll();
+
+        // Then
+        assertFalse(actualAccounts.isEmpty());
+        assertEquals(2, actualAccounts.size());
+        assertTrue(actualAccounts.contains(TestData.createAccount002().orElseThrow()));
+
+        verify(accountRepository).findAll();
     }
 }

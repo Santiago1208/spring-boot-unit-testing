@@ -12,8 +12,8 @@ import java.util.List;
 
 @Service
 public class AccountServiceImpl implements AccountService {
-    private AccountRepository accountRepository;
-    private BankRepository bankRepository;
+    private final AccountRepository accountRepository;
+    private final BankRepository bankRepository;
 
     public AccountServiceImpl(AccountRepository accountRepository, BankRepository bankRepository) {
         this.accountRepository = accountRepository;
@@ -59,7 +59,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<Account> findAll() {
-        return null;
+        return accountRepository.findAll();
     }
 
     @Override
