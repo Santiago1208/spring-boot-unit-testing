@@ -1,6 +1,5 @@
 package co.edu.santiago.springboot.springboot_test.app.controllers;
 
-import co.edu.santiago.springboot.springboot_test.app.TestData;
 import co.edu.santiago.springboot.springboot_test.app.models.Account;
 import co.edu.santiago.springboot.springboot_test.app.models.dto.TransferDTO;
 import co.edu.santiago.springboot.springboot_test.app.services.AccountService;
@@ -8,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.internal.hamcrest.HamcrestArgumentMatcher;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -25,7 +24,9 @@ import java.util.List;
 import java.util.Map;
 
 import static co.edu.santiago.springboot.springboot_test.app.TestData.createAccount001;
+import static co.edu.santiago.springboot.springboot_test.app.TestData.createAccount002;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -92,8 +93,8 @@ class AccountControllerTest {
     void findAllTest() {
         // Given
         List<Account> accounts = Arrays.asList(
-                TestData.createAccount001().orElseThrow(),
-                TestData.createAccount002().orElseThrow());
+                createAccount001().orElseThrow(),
+                createAccount002().orElseThrow());
         when(accountService.findAll()).thenReturn(accounts);
 
         //When
@@ -108,5 +109,32 @@ class AccountControllerTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
                     .andExpect(MockMvcResultMatchers.content().json(mapper.writeValueAsString(accounts)));
         });
+        verify(accountService).findAll();
+    }
+
+    @Test
+    void saveTest() {
+        // Given
+        Account account = new Account(null, "Pepe", new BigDecimal("3000"));
+        Mockito.doAnswer(invocation -> {
+            Account toBeSaved = invocation.getArgument(0);
+            toBeSaved.setId(3L); // Simulates the auto-generated ID
+            return toBeSaved;
+        }).when(accountService).save(any());
+
+        // When
+        assertDoesNotThrow(() -> {
+            mvc.perform(MockMvcRequestBuilders
+                    .post("/api/accounts/")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(mapper.writeValueAsString(account)))
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/api/accounts/3"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.date", Matchers.is(LocalDate.now().toString())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message", Matchers.is("Account created successfully")));
+        });
+
+        verify(accountService).save(any());
     }
 }

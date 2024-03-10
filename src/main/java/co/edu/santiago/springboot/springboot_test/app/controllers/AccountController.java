@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +63,11 @@ public class AccountController {
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Map<String, Object>> save(@RequestBody Account account) {
-        return null;
+        accountService.save(account);
+        Map<String, Object> response = new HashMap<>();
+        response.put("date", LocalDate.now().toString());
+        response.put("status", "Created");
+        response.put("message", "Account created successfully");
+        return ResponseEntity.created(URI.create("/api/accounts/" + account.getId())).body(response);
     }
 }
