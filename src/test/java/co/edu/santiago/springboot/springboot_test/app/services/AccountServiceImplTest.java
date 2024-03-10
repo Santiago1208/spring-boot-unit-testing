@@ -147,4 +147,19 @@ class AccountServiceImplTest {
 
         verify(accountRepository).findAll();
     }
+
+    @Test
+    void saveTest() {
+        // Given
+        Account pepeAccount = new Account(null, "Pepe", new BigDecimal("3000"));
+        when(accountRepository.save(any())).then(invocation -> {
+            Account toBeSaved = invocation.getArgument(0);
+            toBeSaved.setId(3L);
+            return toBeSaved;
+        });
+
+        // When and then
+        assertDoesNotThrow(() -> accountService.save(pepeAccount));
+        verify(accountRepository).save(any());
+    }
 }

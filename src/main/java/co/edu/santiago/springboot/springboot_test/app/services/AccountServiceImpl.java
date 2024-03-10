@@ -58,12 +58,14 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Account> findAll() {
         return accountRepository.findAll();
     }
 
     @Override
+    @Transactional
     public void save(Account account) {
-
+        accountRepository.save(account);
     }
 }
