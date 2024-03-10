@@ -36,7 +36,7 @@ public class AccountController {
     }
 
     @PostMapping("/transfer")
-    public ResponseEntity<?> transfer(@RequestBody TransferDTO transferDTO) {
+    public ResponseEntity<Map<String, Object>> transfer(@RequestBody TransferDTO transferDTO) {
         accountService.transfer(
                 transferDTO.sourceAccountId(),
                 transferDTO.targetAccountId(),
@@ -44,9 +44,9 @@ public class AccountController {
                 transferDTO.bankId());
 
         Map<String, Object> response = new HashMap<>();
-        response.put("Date", LocalDate.now().toString());
-        response.put("Status", "OK");
-        response.put("Message", "Transfer performed successfully");
+        response.put("date", LocalDate.now().toString());
+        response.put("status", "OK");
+        response.put("message", "Transfer performed successfully");
         response.put("transaction", transferDTO);
 
         return ResponseEntity.ok(response);
