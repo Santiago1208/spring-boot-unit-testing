@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -54,5 +55,15 @@ public class AccountServiceImpl implements AccountService {
         Account targetAccount = accountRepository.findById(targetAccountId).orElseThrow();
         targetAccount.credit(amount);
         accountRepository.save(targetAccount);
+    }
+
+    @Override
+    public List<Account> findAll() {
+        return null;
+    }
+
+    @Override
+    public void save(Account account) {
+
     }
 }

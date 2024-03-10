@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -50,5 +52,17 @@ public class AccountController {
         response.put("transaction", transferDTO);
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Account> findAll() {
+        return accountService.findAll();
+    }
+
+    @PostMapping("/")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<Map<String, Object>> save(@RequestBody Account account) {
+        return null;
     }
 }

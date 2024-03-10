@@ -1,10 +1,14 @@
 package co.edu.santiago.springboot.springboot_test.app.controllers;
 
+import co.edu.santiago.springboot.springboot_test.app.TestData;
+import co.edu.santiago.springboot.springboot_test.app.models.Account;
 import co.edu.santiago.springboot.springboot_test.app.models.dto.TransferDTO;
 import co.edu.santiago.springboot.springboot_test.app.services.AccountService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.internal.hamcrest.HamcrestArgumentMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -15,7 +19,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static co.edu.santiago.springboot.springboot_test.app.TestData.createAccount001;
@@ -79,6 +85,28 @@ class AccountControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Transfer performed successfully"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.transaction.sourceAccountId").value(dto.sourceAccountId()))
                 .andExpect(MockMvcResultMatchers.content().json(mapper.writeValueAsString(response)));
+        });
+    }
+
+    @Test
+    void findAllTest() {
+        // Given
+        List<Account> accounts = Arrays.asList(
+                TestData.createAccount001().orElseThrow(),
+                TestData.createAccount002().orElseThrow());
+        when(accountService.findAll()).thenReturn(accounts);
+
+        //When
+        assertDoesNotThrow(() -> {
+            mvc.perform(MockMvcRequestBuilders.get("/api/accounts/").contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$[0].owner").value("Santiago"))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$[1].owner").value("John"))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$[0].balance").value("1000"))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$[1].balance").value("2000"))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+                    .andExpect(MockMvcResultMatchers.content().json(mapper.writeValueAsString(accounts)));
         });
     }
 }
