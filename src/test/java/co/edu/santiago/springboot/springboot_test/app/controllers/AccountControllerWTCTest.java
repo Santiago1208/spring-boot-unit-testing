@@ -19,8 +19,10 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
@@ -118,5 +120,56 @@ class AccountControllerWTCTest {
                     });
         });
     }
+
+    @Test
+    @Order(4)
+    void findAllJsonPathTest() {
+        assertDoesNotThrow(() -> {
+            webClient
+                    .get()
+                    .uri("/api/accounts/")
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectHeader().contentType(APPLICATION_JSON)
+                    .expectBody()
+                    .jsonPath("$[0].owner").isEqualTo("Santiago")
+                    .jsonPath("$[0].id").isEqualTo(1)
+                    .jsonPath("$[0].balance").isEqualTo(900)
+                    .jsonPath("$[1].owner").isEqualTo("John")
+                    .jsonPath("$[1].id").isEqualTo(2)
+                    .jsonPath("$[1].balance").isEqualTo(2100)
+                    .jsonPath("$").isArray()
+                    .jsonPath("$").value(hasSize(2));
+        });
+    }
+
+    @Test
+    @Order(5)
+    void findAllConsumeWithTest() {
+        assertDoesNotThrow(() -> {
+            webClient
+                    .get()
+                    .uri("/api/accounts/")
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectHeader().contentType(APPLICATION_JSON)
+                    .expectBodyList(Account.class)
+                    .consumeWith(serverResponse -> {
+                        List<Account> accounts = serverResponse.getResponseBody();
+
+                        assertNotNull(accounts);
+                        assertFalse(accounts.isEmpty());
+                        assertEquals(2, accounts.size());
+
+                        assertEquals(1L, accounts.get(0).getId());
+                        assertEquals("Santiago", accounts.get(0).getOwner());
+                        assertEquals("900.00", accounts.get(0).getBalance().toPlainString());
+                        assertEquals(2L, accounts.get(1).getId());
+                        assertEquals("John", accounts.get(1).getOwner());
+                        assertEquals("2100.00", accounts.get(1).getBalance().toPlainString());
+                    });
+        });
+    }
+
 }
 
