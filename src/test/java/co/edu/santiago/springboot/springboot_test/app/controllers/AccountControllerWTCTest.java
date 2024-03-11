@@ -63,7 +63,7 @@ class AccountControllerWTCTest {
                     // Then
                     .expectStatus().isOk()
                     .expectHeader().contentType(APPLICATION_JSON)
-                    .expectBody() // By default, it returns byte[]. You can call expectBody(String.class) to get the String return but it won't be compatible with jsonPath()
+                    .expectBody() // By default, it returns byte[]. You can call expectBody(String.class) to get the String return, but it won't be compatible with jsonPath()
                     .consumeWith(serverResponse -> { // Use this for the case you used expectBody(String.class)
                         try {
                             byte[] body = serverResponse.getResponseBody();
@@ -115,6 +115,7 @@ class AccountControllerWTCTest {
                     .expectBody(Account.class)
                     .consumeWith(serverResponse -> {
                         Account account = serverResponse.getResponseBody();
+                        assertNotNull(account);
                         assertEquals("John", account.getOwner());
                         assertEquals("2100.00", account.getBalance().toPlainString());
                     });
@@ -171,5 +172,58 @@ class AccountControllerWTCTest {
         });
     }
 
+    @Test
+    @Order(6)
+    void saveJsonPathTest() {
+        // Given
+        Account account = new Account(null, "Pepe", new BigDecimal("3000"));
+
+        // When
+        assertDoesNotThrow(() -> {
+            webClient
+                    .post()
+                    .uri("/api/accounts/")
+                    .contentType(APPLICATION_JSON)
+                    .bodyValue(account)
+                    .exchange()
+                    .expectStatus().isCreated()
+                    .expectHeader().contentType(APPLICATION_JSON)
+                    .expectBody()
+                    .jsonPath("$.date").isEqualTo(LocalDate.now().toString())
+                    .jsonPath("$.status").isEqualTo("Created")
+                    .jsonPath("$.message").isEqualTo("Account created successfully");
+        });
+    }
+
+    @Test
+    @Order(7)
+    void saveConsumeWithTest() {
+        // Given
+        Account account = new Account(null, "Pepa", new BigDecimal("3500"));
+
+        // When
+        assertDoesNotThrow(() -> {
+            webClient
+                    .post()
+                    .uri("/api/accounts/")
+                    .contentType(APPLICATION_JSON)
+                    .bodyValue(account)
+                    .exchange()
+                    .expectStatus().isCreated()
+                    .expectHeader().contentType(APPLICATION_JSON)
+                    .expectBody()
+                    .consumeWith(serverResponse -> {
+                        byte[] body = serverResponse.getResponseBody();
+                        try {
+                            JsonNode json = mapper.readTree(body);
+                            assertEquals(LocalDate.now().toString(), json.path("date").asText());
+                            assertEquals("Created", json.path("status").asText());
+                            assertEquals("Account created successfully", json.path("message").asText());
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+        });
+    }
 }
 
